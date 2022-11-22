@@ -1,6 +1,6 @@
 ﻿import json
-import urllib.request
 
+import requests
 from openpyxl import Workbook
 
 # config 불러오기
@@ -17,12 +17,13 @@ def make_url(station: str, start: int, end: int) -> str:
     :param end: 끝 페이지
     :return: 구성된 url
     """
-    return f"http://swopenapi.seoul.go.kr/api/subway/{CONFIG['key']}/xml/realtimeStationArrival/{start}/{end}/{station}"
+    return f"http://swopenapi.seoul.go.kr/api/subway/{CONFIG['key']}/json/realtimeStationArrival/{start}/{end}/{station}"
 
 
 def fetch(station: str, start: int, end: int) -> dict:
     """
     API에서 데이터를 가져와 반환합니다.
+    만약 데이터가 받아와지지 않았을 경우, 빈 딕셔너리를 반환합니다.
 
     :param station: 역 이름
     :param start: 시작 페이지
@@ -30,12 +31,21 @@ def fetch(station: str, start: int, end: int) -> dict:
     :return: api 데이터 딕셔너리
     """
     url = make_url(station, start, end)
-    text_data = urllib.request.urlopen(url).read().decode("utf-8")
-    subway_arrival = json.loads(text_data)
-    return subway_arrival
+    req_data = requests.get(url)
+    json_data = req_data.json()
+    if json_data["status"] != 200:
+        return {}
+    return json_data
 
 
 def save_data_to_excel(data: dict, excel_name: str):
+    """
+    딕셔너리 데이터를 엑셀로 저장합니다.
+    미리 지정된 컬럼을 사용합니다.
+
+    :param data: api에서 추출한 딕셔너리 데이터
+    :param excel_name: 엑셀 파일에서 확장자를 제외한 이름
+    """
     wb = Workbook()
     ws = wb.active
 
@@ -79,4 +89,15 @@ def save_data_to_excel(data: dict, excel_name: str):
                 row["lstcarAt"],
             ]
         )
-    wb.save(f'{excel_name}.xlsx')
+    wb.save(f"{excel_name}.xlsx")
+
+
+if __name__ == "__main__":
+
+    def main():
+        json_data = fetch("1호선", 0, 1000)
+        if json_data == {}:
+            return
+        save_data_to_excel(json_data, "sample")
+
+    main()
