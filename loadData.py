@@ -4,8 +4,8 @@ import urllib.request
 from openpyxl import Workbook
 
 # config 불러오기
-with open("config.json", "rt") as f:
-    CONFIG: dict = json.load(f)
+with open("config.json", "rt", encoding="utf-8-sig") as config:
+    CONFIG: dict = json.load(config)
 
 
 def make_url(station: str, start: int, end: int) -> str:
