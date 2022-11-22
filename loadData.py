@@ -35,7 +35,7 @@ def fetch(station: str, start: int, end: int) -> dict:
     return subway_arrival
 
 
-def save_json(data: dict, file_name: str):
+def save_data_to_excel(data: dict, excel_name: str):
     wb = Workbook()
     ws = wb.active
 
@@ -79,4 +79,4 @@ def save_json(data: dict, file_name: str):
                 row["lstcarAt"],
             ]
         )
-    wb.save(file_name)
+    wb.save(f'{excel_name}.xlsx')
