@@ -67,17 +67,20 @@ def data_save(json_data: any):
                '지하철역명', '열차번호', '최종수신날짜', '최종수신시간', '상하행선구분', '종착지하철역ID',
                '종착지하철역명', '열차상태구분', '급행여부', '막차여부']
         )
-    
-    for data in json_data['realtimePositionList']:
-        ws.append(
-            [data['totalCount'], data['rowNum'], data['selectedCount'], data['subwayId'],
-                   data['subwayNm'], data['statnId'], data['statnNm'], data['trainNo'],
-                   data['lastRecptnDt'], data['recptnDt'], data['updnLine'], data['statnTid'],
-                   data['statnTnm'], data['trainSttus'], data['directAt'], data['lstcarAt']]
-            )
-    wb.save('./dataset/' + filename + '.xlsx')
+    if json_data['realtimePositionList'] != None:
+        for data in json_data['realtimePositionList']:
+            ws.append(
+                [data['totalCount'], data['rowNum'], data['selectedCount'], data['subwayId'],
+                    data['subwayNm'], data['statnId'], data['statnNm'], data['trainNo'],
+                    data['lastRecptnDt'], data['recptnDt'], data['updnLine'], data['statnTid'],
+                    data['statnTnm'], data['trainSttus'], data['directAt'], data['lstcarAt']]
+                )
+        wb.save('./dataset/' + filename + '.xlsx')
 
-    print("dataset save sucess")
+        print("dataset save sucess")
+        
+    elif json_data['realtimePositionList'] == None:
+        pass
     
     # 60초마다 한번씩 실행합니다.
     time.sleep(60)
