@@ -3,6 +3,7 @@ import json
 import requests
 import datetime
 import time
+import numpy as np
 from openpyxl import Workbook
 
 # config 불러오기
@@ -73,7 +74,7 @@ def data_save(json_data: any):
                 [data['totalCount'], data['rowNum'], data['selectedCount'], data['subwayId'],
                     data['subwayNm'], data['statnId'], data['statnNm'], data['trainNo'],
                     data['lastRecptnDt'], data['recptnDt'], data['updnLine'], data['statnTid'],
-                    data['statnTnm'], data['trainSttus'], data['directAt'], data['lstcarAt']]
+                    data['statnTnm'], np.clip(data['trainSttus'], 0, 2), data['directAt'], data['lstcarAt']]
                 )
         wb.save('./dataset/' + filename + '.xlsx')
 
