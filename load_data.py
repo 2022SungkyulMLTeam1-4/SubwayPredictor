@@ -66,7 +66,7 @@ def data_save(json_data: any):
     dict = {'지하철역ID': [], '열차번호': [], '최종수신시간': [], '상하행선구분': [],
             '종착지하철역ID': [], '열차상태구분': [], '급행여부': [], '막차여부': []}
 
-    if json_data['realtimePositionList'] != None:
+    if json_data['realtimePositionList'] is not None:
         for data in json_data['realtimePositionList']:
             for i in range(len(columns)):
                 dict[columns[i]].append(data[api_columns[i]])
@@ -74,7 +74,7 @@ def data_save(json_data: any):
         df.to_csv('./dataset/1호선 지하철 위치정보 2차.csv', mode='a', header=False, index=False)
         print("dataset save sucess")
 
-    elif json_data['realtimePositionList'] == None:
+    elif json_data['realtimePositionList'] is None:
         pass
 
     # 60초마다 한번씩 실행합니다.
@@ -92,12 +92,9 @@ def make_header():
     columns = ['지하철역ID', '열차번호', '최종수신시간', '상하행선구분',
                '종착지하철역ID', '열차상태구분', '급행여부', '막차여부']
 
-    f = open("./dataset/1호선 지하철 위치정보 2차.csv", 'w', encoding='utf-8-sig')
-
-    wr = csv.writer(f)
-    wr.writerow(columns)
-
-    f.close
+    with open("./dataset/1호선 지하철 위치정보 2차.csv", 'w', encoding='utf-8-sig') as f:
+        wr = csv.writer(f)
+        wr.writerow(columns)
 
 
 if __name__ == "__main__":
