@@ -1,11 +1,10 @@
-﻿import json
-import requests
-import time
+﻿import csv
+import json
 import os
+import time
 
-from openpyxl import Workbook
 import pandas as pd
-import csv
+import requests
 
 # config 불러오기
 with open("config.json", "rt", encoding="utf-8-sig") as config_file:
@@ -42,30 +41,31 @@ def fetch(request_type: int, param: str, start: int, end: int) -> dict:
     url = make_url(request_type, param, start, end)
     req_data = requests.get(url)
     json_data = req_data.json()
-    
+
     if json_data["errorMessage"].get("status", 200) == 200:
         print("load sucess")
-    
+
     elif json_data["errorMessage"].get("status", 200) != 200:
         print(json_data["errorMessage"])
-        
+
     return json_data
+
 
 def data_save(json_data: any):
     """
     가져온 데이터를 바탕으로 xlsx 파일 (데이터셋)을 만듭니다.
     :json_data: json 데이터
     """
-        
+
     columns = ['지하철역ID', '열차번호', '최종수신시간', '상하행선구분',
-         '종착지하철역ID', '열차상태구분', '급행여부', '막차여부']
-    
+               '종착지하철역ID', '열차상태구분', '급행여부', '막차여부']
+
     api_columns = ['statnId', 'trainNo', 'recptnDt', 'updnLine',
-                 'statnTid', 'trainSttus', 'directAt', 'lstcarAt']
-    
-    dict = {'지하철역ID':[], '열차번호': [], '최종수신시간': [], '상하행선구분': [],
-         '종착지하철역ID': [], '열차상태구분': [], '급행여부': [], '막차여부': []}
-    
+                   'statnTid', 'trainSttus', 'directAt', 'lstcarAt']
+
+    dict = {'지하철역ID': [], '열차번호': [], '최종수신시간': [], '상하행선구분': [],
+            '종착지하철역ID': [], '열차상태구분': [], '급행여부': [], '막차여부': []}
+
     if json_data['realtimePositionList'] != None:
         for data in json_data['realtimePositionList']:
             for i in range(len(columns)):
@@ -73,34 +73,36 @@ def data_save(json_data: any):
         df = pd.DataFrame(dict)
         df.to_csv('./dataset/1호선 지하철 위치정보 2차.csv', mode='a', header=False, index=False)
         print("dataset save sucess")
-        
+
     elif json_data['realtimePositionList'] == None:
         pass
-    
+
     # 60초마다 한번씩 실행합니다.
     time.sleep(60)
+
 
 def make_header():
     """
     dataset 폴더을 생성하고 그 안에 헤더와 함께 csv 파일을 생성합니다.
     """
-    
+
     if not os.path.exists('./dataset'):
         os.makedirs('./dataset')
-        
+
     columns = ['지하철역ID', '열차번호', '최종수신시간', '상하행선구분',
-    '종착지하철역ID', '열차상태구분', '급행여부', '막차여부']
-    
-    f = open("./dataset/1호선 지하철 위치정보 2차.csv", 'w', encoding = 'utf-8-sig')
-        
+               '종착지하철역ID', '열차상태구분', '급행여부', '막차여부']
+
+    f = open("./dataset/1호선 지하철 위치정보 2차.csv", 'w', encoding='utf-8-sig')
+
     wr = csv.writer(f)
     wr.writerow(columns)
-    
+
     f.close
-    
+
+
 if __name__ == "__main__":
     make_header()
-    
+
     while True:
         json_data = fetch(0, "1호선", 0, 1000)
         data_save(json_data)
