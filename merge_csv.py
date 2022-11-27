@@ -11,7 +11,7 @@ columns = ['전체 지하철 수', 'n번째 지하철', '사소한 항목', '지
            '종착지하철역명', '열차상태구분', '급행여부', '막차여부']
 
 db = pd.DataFrame(columns=columns)
-db.to_csv(output_name, mode='w', index=True, encoding='utf-8-sig')
+db.to_csv(output_name, mode='w', index=False, encoding='utf-8-sig')
 
 for file_name in file_list:
     print(file_name)
@@ -19,4 +19,4 @@ for file_name in file_list:
 
     db = pd.DataFrame(data, columns=columns)
 
-    db.to_csv(output_name, mode='a', header=False, index=True, encoding='utf-8-sig')
+    db.to_csv(output_name, mode='a', header=False, index=False, encoding='utf-8-sig')
