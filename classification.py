@@ -1,5 +1,6 @@
 import random
 
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -17,7 +18,7 @@ class SubwayDataset(Dataset):
 
         self.data = []
         for i, val in data:
-            self.data.append(torch.tensor(val.values))
+            self.data.append(torch.from_numpy(val.to_numpy()))
 
         self.lengths = list(map(len, self.data))
         self.data = torch.nn.utils.rnn.pad_sequence(self.data)
@@ -27,6 +28,12 @@ class SubwayDataset(Dataset):
 
     def __getitem__(self, item):
         pass
+
+
+def random_split_train_test(data, train_ratio=0.8):
+    train_size = int(train_ratio * len(data))
+    test_size = len(data) - train_size
+    return torch.utils.data.random_split(data, [train_size, test_size])
 
 
 class Encoder(nn.Module):
