@@ -12,6 +12,7 @@ class SubwayDataset(Dataset):
         super().__init__()
         raw_data = pd.read_csv('datacsv.csv')
         raw_data['최종수신시간'] = pd.to_datetime(raw_data['최종수신시간'])
+        raw_data['최종수신시간'] = raw_data['최종수신시간'].astype(int)
         raw_data.drop(columns=['사소한 항목', '전체 지하철 수', 'n번째 지하철', '지하철호선ID', '지하철호선명', '지하철역명', '최종수신날짜', '종착지하철역명'],
                       inplace=True, errors="ignore")
         data = raw_data.sort_values(by='최종수신시간').groupby(by='최종수신시간', as_index=False)
@@ -27,7 +28,7 @@ class SubwayDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, item):
-        pass
+        return self.data[item]
 
 
 def random_split_train_test(data, train_ratio=0.8):
