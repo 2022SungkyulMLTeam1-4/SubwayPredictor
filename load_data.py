@@ -73,7 +73,7 @@ def data_save(json_data: any):
                 dict[columns[i]].append(data[api_columns[i]])
         df = pd.DataFrame(dict)
         df.to_csv('./dataset/1호선 지하철 위치정보 2차.csv', mode='a', header=False, index=False)
-        print("dataset save sucess")
+        print("dataset save sucess", datetime.datetime.now())
 
     elif json_data.get('realtimePositionList') is None:
         pass
