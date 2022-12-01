@@ -8,7 +8,8 @@ import classification
 if __name__ == "__main__":
     encoder = classification.Encoder(100, 100, 200, 5, 0.2)
     decoder = classification.Decoder(100, 100, 200, 5, 0.2)
-    device = torch.cuda.device(0)
+    device = torch.device('cuda:0')
+    print(device, type(device))
     model = classification.Seq2Seq(encoder, decoder, device)
 
     loss_function = nn.CrossEntropyLoss()
@@ -18,11 +19,11 @@ if __name__ == "__main__":
 
     train_dataset, test_dataset = classification.random_split_train_test(dataset, train_ratio=0.8)
 
-    train_loader = DataLoader(train_dataset, batch_size=64)
+    loader = DataLoader(train_dataset)
 
     for epoch in range(1000000):
         model.train()
-        for x, y in train_loader:
+        for x, y in loader:
             x = x.to(device)
             y = y.to(device)
 
@@ -31,3 +32,8 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             cost.backward()
             optimizer.step()
+        
+        with model.no_grad():
+            model.eval()
+            cost = loss_function(*test_dataset[:-1])
+            print(f"loss for {epoch} epoch: {cost}")

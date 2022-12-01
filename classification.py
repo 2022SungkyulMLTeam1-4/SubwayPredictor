@@ -24,11 +24,12 @@ class SubwayDataset(Dataset):
         self.lengths = list(map(len, self.data))
         self.data = torch.nn.utils.rnn.pad_sequence(self.data)
 
+
     def __len__(self):
-        return len(self.data)
+        return len(self.data) - 1
 
     def __getitem__(self, item):
-        return self.data[item]
+        return self.data[item], (self.data[-1:] + self.data[:-1])[item]
 
 
 def random_split_train_test(data, train_ratio=0.8):
@@ -101,7 +102,6 @@ class Seq2Seq(nn.Module):
 
         hidden, cell = self.encoder(src)
 
-        # 첫 번째 입력값 <sos> 토큰
         input_ = trg[0, :]
 
         for t in range(0, trg_len):
