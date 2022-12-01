@@ -98,7 +98,7 @@ def make_header():
 
 
 if __name__ == "__main__":
-    make_header()
+    # make_header()
 
     while True:
         json_data = fetch(0, "1호선", 0, 1000)
