@@ -1,4 +1,5 @@
 ﻿import csv
+import datetime
 import json
 import os
 import time
@@ -66,15 +67,15 @@ def data_save(json_data: any):
     dict = {'지하철역ID': [], '열차번호': [], '최종수신시간': [], '상하행선구분': [],
             '종착지하철역ID': [], '열차상태구분': [], '급행여부': [], '막차여부': []}
 
-    if json_data['realtimePositionList'] is not None:
-        for data in json_data['realtimePositionList']:
+    if json_data.get('realtimePositionList') is not None:
+        for data in json_data.get('realtimePositionList'):
             for i in range(len(columns)):
                 dict[columns[i]].append(data[api_columns[i]])
         df = pd.DataFrame(dict)
         df.to_csv('./dataset/1호선 지하철 위치정보 2차.csv', mode='a', header=False, index=False)
         print("dataset save sucess")
 
-    elif json_data['realtimePositionList'] is None:
+    elif json_data.get('realtimePositionList') is None:
         pass
 
     # 60초마다 한번씩 실행합니다.
