@@ -92,14 +92,16 @@ def make_header():
     '종착지하철역ID', '열차상태구분', '급행여부', '막차여부']
     
     f = open("./dataset/1호선 지하철 위치정보 2차.csv", 'w', encoding = 'utf-8-sig')
-        
+
     wr = csv.writer(f)
     wr.writerow(columns)
     
     f.close
     
 if __name__ == "__main__":
-    make_header()
+    
+    # "1호선 지하철 위치정보 2차.csv"가 존재하지 않을 경우에만 포함 후, 실행
+    # make_header()
     
     while True:
         json_data = fetch(0, "1호선", 0, 1000)
