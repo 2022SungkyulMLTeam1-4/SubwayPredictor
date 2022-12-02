@@ -43,11 +43,11 @@ def fetch(request_type: int, param: str, start: int, end: int) -> dict:
     req_data = requests.get(url)
     json_data = req_data.json()
 
-    if json_data["errorMessage"].get("status", 200) == 200:
+    if json_data.get("errorMessage", dict()).get("status", 200) == 200:
         print("load sucess")
 
-    elif json_data["errorMessage"].get("status", 200) != 200:
-        print(json_data["errorMessage"])
+    elif json_data.get("errorMessage", dict()).get("status", 200) != 200:
+        print(json_data.get("errorMessage", "unknown error"))
 
     return json_data
 
