@@ -17,25 +17,58 @@ class SubwayDataset(Dataset):
         raw_data = raw_data.drop_duplicates(ignore_index=True)  # 1분마다 수신되는 데이터에 중복 존재함
         raw_data['최종수신시간'] = pd.to_datetime(raw_data['최종수신시간'])
         raw_data['최종수신시간'] = raw_data['최종수신시간'].astype(np.int64) // 10 ** 9 // 60
-        data = raw_data.sort_values(by='최종수신시간').groupby(by='열차번호', as_index=False)
+        raw_data['최종수신일'] = raw_data['최종수신시간'] // 3600
+        raw_data.sort_values(by="최종수신시간", inplace=True)
+        group_data = raw_data.groupby(by=['열차번호', '최종수신일'])
+        data = [i[1].to_numpy()[:, [0, 2, 3, 4, 5]] for i in group_data]
+        data = [i for i in data if i.shape[0] >= 10]
 
-        self.data = []
-        for i, val in data:
-            tensor_value = torch.from_numpy(val.to_numpy())
-            length = tensor_value.shape[0]
-            padded = torch.nn.functional.pad(tensor_value, (0, 0, 0, 200 - length), 'constant', 0)
-            self.data.append(padded)
+        data = [[self.row_process(row) for row in i] for i in data]
+        interpolated_data = [self.interpolation(i) for i in data]
 
-        self.data = torch.stack(self.data)
-
-        self.x = self.data[:, -1, :]
-        self.y = self.data[:, 1:, :]
+        self.x = []
+        self.y = []
+        for i in interpolated_data:
+            length = len(i) - (len(i) % 10)
+            for j in range(0, length, 10):
+                self.x.append(i[j: j + 9])
+                self.y.append(i[j + 9])
 
     def __len__(self):
-        return self.x.shape[0]
+        return len(self.x)
 
     def __getitem__(self, item):
         return self.x[item], self.y[item]
+
+    @staticmethod
+    def row_process(row):
+        """
+        컬럼 데이터를 float형 데이터로 변경하기 위한 메소드입니다.
+        """
+        distance = abs((row[0] % 1000) - (row[3] % 1000))
+        if row[4] == 0:
+            distance -= 0.1
+        elif row[4] != 1:
+            distance += 0.5
+
+        if row[2] == 0:
+            distance *= -1
+
+        return np.array([row[1], distance])
+
+    @staticmethod
+    def interpolation(data):
+        if type(data) == list:
+            data = np.array(data)
+        min_time = data[:, 0].min()
+        max_time = data[:, 0].max()
+
+        interpolated = np.interp(np.arange(min_time, max_time + 1), data[:, 0], data[:, 1])
+        x = np.arange(min_time, max_time + 1)
+
+        result = [np.array([x[i], interpolated[i]]) for i in range(x.shape[0])]
+
+        return result
 
 
 class Model(torch.nn.Module):
