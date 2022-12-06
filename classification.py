@@ -31,8 +31,11 @@ class SubwayDataset(Dataset):
         for i in interpolated_data:
             length = len(i) - (len(i) % 10)
             for j in range(0, length, 10):
-                self.x.append(i[j: j + 9])
-                self.y.append(i[j + 9][1])
+                self.x.append(torch.tensor(np.array(i[j: j + 9]), dtype=torch.float32))
+                self.y.append(torch.tensor(np.array(i[j + 9][1]), dtype=torch.float32))
+
+        self.x = torch.stack(self.x)
+        self.y = torch.stack(self.y)
 
     def __len__(self):
         return len(self.x)
@@ -74,7 +77,7 @@ class SubwayDataset(Dataset):
 class Model(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.lstm = torch.nn.LSTM(input_size=(10, 2), hidden_size=64, num_layers=5, batch_first=True)
+        self.lstm = torch.nn.LSTM(input_size=2, hidden_size=64, num_layers=5, batch_first=True)
         self.linear = torch.nn.Linear(64, 1)
 
     def forward(self, x):
@@ -86,7 +89,7 @@ class Model(torch.nn.Module):
 def train(dataloader, model):
     model.train()
     data_size = len(dataloader.dataset)
-    optimizer = torch.optim.nadam.NAdam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.NAdam(model.parameters(), lr=0.001)
     loss_function = torch.nn.CrossEntropyLoss()
     for batch, (x, y) in enumerate(dataloader):
         pred = model(x)
