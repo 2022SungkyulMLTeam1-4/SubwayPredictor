@@ -84,13 +84,14 @@ class Model(torch.nn.Module):
         x, _ = self.lstm(x)
         x = self.linear(x)
         x = x.mean(axis=1)
+        x.reshape(-1)
         return x
 
 
 def train(dataloader, model):
     model.train()
     data_size = len(dataloader.dataset)
-    optimizer = torch.optim.NAdam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.NAdam(model.parameters(), lr=1)
     loss_function = torch.nn.MSELoss()
     for batch, (x, y) in enumerate(dataloader):
         pred = model.forward(x)
@@ -101,7 +102,7 @@ def train(dataloader, model):
         optimizer.step()
 
         loss, current = loss.item(), batch * len(x)
-        if batch % 100 == 0:
+        if batch % 10 == 0:
             print(f"loss: {loss} [{current}/{data_size}]")
 
 
