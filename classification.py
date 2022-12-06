@@ -32,7 +32,7 @@ class SubwayDataset(Dataset):
             length = len(i) - (len(i) % 10)
             for j in range(0, length, 10):
                 self.x.append(i[j: j + 9])
-                self.y.append(i[j + 9])
+                self.y.append(i[j + 9][1])
 
     def __len__(self):
         return len(self.x)
