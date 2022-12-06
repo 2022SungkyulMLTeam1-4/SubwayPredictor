@@ -83,6 +83,7 @@ class Model(torch.nn.Module):
     def forward(self, x):
         x, _ = self.lstm(x)
         x = self.linear(x)
+        x = x.mean(axis=1)
         return x
 
 
@@ -90,9 +91,9 @@ def train(dataloader, model):
     model.train()
     data_size = len(dataloader.dataset)
     optimizer = torch.optim.NAdam(model.parameters(), lr=0.001)
-    loss_function = torch.nn.CrossEntropyLoss()
+    loss_function = torch.nn.MSELoss()
     for batch, (x, y) in enumerate(dataloader):
-        pred = model(x)
+        pred = model.forward(x)
         loss = loss_function(pred, y)
 
         optimizer.zero_grad()
@@ -100,14 +101,15 @@ def train(dataloader, model):
         optimizer.step()
 
         loss, current = loss.item(), batch * len(x)
-        print(f"loss: {loss} [{current}/{data_size}]")
+        if batch % 100 == 0:
+            print(f"loss: {loss} [{current}/{data_size}]")
 
 
 def test(dataloader, model):
     model.eval()
     data_size = len(dataloader.dataset)
     num_batches = len(dataloader)
-    loss_function = torch.nn.CrossEntropyLoss()
+    loss_function = torch.nn.MSELoss()
     test_loss, correct = 0, 0
 
     with torch.no_grad():
