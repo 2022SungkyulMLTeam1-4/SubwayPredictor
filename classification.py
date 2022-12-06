@@ -74,10 +74,47 @@ class SubwayDataset(Dataset):
 class Model(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.lstm = torch.nn.LSTM(input_size=4, hidden_size=64, num_layers=2, batch_first=True)
-        self.linear = torch.nn.Linear(64, 4)
+        self.lstm = torch.nn.LSTM(input_size=(10, 2), hidden_size=64, num_layers=5, batch_first=True)
+        self.linear = torch.nn.Linear(64, 1)
 
     def forward(self, x):
         x, _ = self.lstm(x)
         x = self.linear(x)
         return x
+
+
+def train(dataloader, model):
+    model.train()
+    data_size = len(dataloader.dataset)
+    optimizer = torch.optim.nadam.NAdam(model.parameters(), lr=0.001)
+    loss_function = torch.nn.CrossEntropyLoss()
+    for batch, (x, y) in enumerate(dataloader):
+        pred = model(x)
+        loss = loss_function(pred, y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        loss, current = loss.item(), batch * len(x)
+        print(f"loss: {loss} [{current}/{data_size}]")
+
+
+def test(dataloader, model):
+    model.eval()
+    data_size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    loss_function = torch.nn.CrossEntropyLoss()
+    test_loss, correct = 0, 0
+
+    with torch.no_grad():
+        for x, y in dataloader:
+            pred = model(x)
+            test_loss += loss_function(pred, y).item()
+            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+
+    test_loss /= num_batches
+    correct /= data_size
+    print(f"test loss: {test_loss}, test accuracy: {correct}\n")
+
+    return test_loss, correct
