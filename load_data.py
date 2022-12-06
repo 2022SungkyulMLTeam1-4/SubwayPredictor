@@ -54,7 +54,7 @@ def fetch(request_type: int, param: str, start: int, end: int) -> dict:
 
 def data_save(json_data: any):
     """
-    가져온 데이터를 바탕으로 xlsx 파일 (데이터셋)을 만듭니다.
+    가져온 데이터를 바탕으로 csv 파일 (데이터셋)을 만듭니다.
     :json_data: json 데이터
     """
 
